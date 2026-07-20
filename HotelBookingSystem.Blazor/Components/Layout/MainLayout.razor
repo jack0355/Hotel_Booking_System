@@ -1,0 +1,53 @@
+﻿@using MudBlazor
+@inject NavigationManager Nav
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudPopoverProvider/>
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary">
+        <MudText Typo="Typo.h6">🏨 Hotel Booking System</MudText>
+        <MudSpacer />
+        @if (TokenStore.IsLoggedIn)
+        {
+            <MudText Color="Color.Inherit" Class="mr-3">@TokenStore.Role</MudText>
+            <MudButton Color="Color.Inherit" OnClick="Logout">Logout</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Inherit" Href="/login">Login</MudButton>
+        }
+    </MudAppBar>
+
+    @code {
+        private void Logout()
+        {
+            TokenStore.AccessToken = null;  // clear token
+            TokenStore.Role = null;
+            Nav.NavigateTo("/login");       // redirect to login page
+        }
+    }
+
+    <MudDrawer Open="true" Elevation="2" Variant="DrawerVariant.Persistent">
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+                Home
+            </MudNavLink>
+            <MudNavLink Href="/rooms" Icon="@Icons.Material.Filled.Hotel">
+                Rooms
+            </MudNavLink>
+            <MudNavLink Href="/my-bookings" Icon="@Icons.Material.Filled.BookOnline">
+                My Bookings
+            </MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>

@@ -1,0 +1,11 @@
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\bin\Debug\net8.0\HotelBookingSystemCore.deps.json
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\bin\Debug\net8.0\HotelBookingSystemCore.dll
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\bin\Debug\net8.0\HotelBookingSystemCore.pdb
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\HotelBookingSystemCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\HotelBookingSystemCore.AssemblyInfoInputs.cache
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\HotelBookingSystemCore.AssemblyInfo.cs
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\HotelBookingSystemCore.csproj.CoreCompileInputs.cache
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\HotelBookingSystemCore.dll
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\refint\HotelBookingSystemCore.dll
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\HotelBookingSystemCore.pdb
+C:\Users\NewOwner\source\repos\HotelBookinSystem\HotelBookingSystem.Core\obj\Debug\net8.0\ref\HotelBookingSystemCore.dll

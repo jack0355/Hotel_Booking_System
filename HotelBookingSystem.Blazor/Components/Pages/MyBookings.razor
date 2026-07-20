@@ -1,0 +1,120 @@
+﻿@page "/my-bookings"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Nav
+
+<PageTitle>My Bookings</PageTitle>
+<MudText Typo="Typo.h4" GutterBottom="true">My Bookings</MudText>
+
+@if (!TokenStore.IsLoggedIn)
+{
+    <MudAlert
+    Severity="Severity.Warning">
+        Please<MudLink Href=" /login">login</MudLink>to see your bookings . 
+    </MudAlert>
+}
+else if (bookings == null)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+
+else if(!bookings.Any())
+{
+    <MudText>No Bookings Yet . </MudText>
+}
+else
+{
+   
+    <MudTable Items="bookings" Hover="true">
+        @* MudTable = modern data table with hover effect *@
+        <HeaderContent>
+            <MudTh>Room</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh>Check-in</MudTh>
+            <MudTh>Check-out</MudTh>
+            <MudTh>Total</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Action</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.RoomNumber</MudTd>
+            <MudTd>@context.RoomType</MudTd>
+            <MudTd>@context.CheckIn.ToShortDateString()</MudTd>
+            <MudTd>@context.CheckOut.ToShortDateString()</MudTd>
+            <MudTd>$@context.TotalPrice</MudTd>
+            <MudTd>
+                <MudText Color="@GetStatusColor(context.Status)">@context.Status</MudText>
+            </MudTd>
+            <MudTd>
+                @if (context.Status == "Pending" || context.Status == "Confirmed")
+                {
+                    <MudButton Size="Size.Small"
+                               Color="Color.Error"
+                               OnClick="() => CancelBooking(context.Id)">
+                        Cancel
+                    </MudButton>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code
+{
+    private List<BookingResponse>? bookings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!TokenStore.IsLoggedIn)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        await LoadBookings();
+    }
+
+    private async Task LoadBookings()
+    {
+        var client = HttpClientFactory.CreateClient("HotelAPI");
+        client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer", TokenStore.AccessToken);
+
+        bookings = await client.GetFromJsonAsync<List<BookingResponse>>("api/Bookings/my");
+    }
+
+
+    private async Task CancelBooking(int id)
+    {
+
+        var client = HttpClientFactory.CreateClient("HotelAPI");
+        client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue(
+                "Bearer", TokenStore.AccessToken);
+
+        var response = await client.PutAsJsonAsync($"api/Bookings/{id}/cancel", "");
+
+        if (response.IsSuccessStatusCode)
+            await LoadBookings();
+
+    }
+
+    private Color GetStatusColor(string status) => status switch
+    {
+        "Confirmed" => Color.Success,  
+        "Pending" => Color.Warning,    
+        "Cancelled" => Color.Error,    
+        _ => Color.Default
+    };
+
+    public class BookingResponse
+    {
+        public int Id { get; set; }
+        public string RoomNumber { get; set; } = string.Empty;
+        public string RoomType { get; set; } = string.Empty;
+        public DateTime CheckIn { get; set; }
+        public DateTime CheckOut { get; set; }
+        public decimal TotalPrice { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
+}

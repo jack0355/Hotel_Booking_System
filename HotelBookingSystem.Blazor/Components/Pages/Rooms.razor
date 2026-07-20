@@ -1,0 +1,78 @@
+﻿@page "/rooms"
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+@* inject means "give me this service automatically" — same as constructor injection in controllers *@
+
+<PageTitle>Rooms</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Available Rooms</MudText>
+
+@if (rooms == null)
+{
+    <MudProgressCircular Indeterminate="true" /> @* loading spinner *@
+}
+else if (!rooms.Any())
+{
+    <MudText>No rooms available.</MudText>
+}
+else
+{
+    <MudGrid>
+        @foreach (var room in rooms)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">Room @room.Number</MudText>
+                        <MudText>Type: @room.Type</MudText>
+                        <MudText>Capacity: @room.Capacity</MudText>
+                        <MudText Color="Color.Primary">$@room.PricePerNight / night</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                        OnClick="() => BookRoom(room.Id)">
+                            
+                            Book Now
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+
+    private List<RoomResponse>? rooms;
+
+    protected override async Task OnInitializedAsync()
+
+    {
+        var client = HttpClientFactory.CreateClient("HotelAPI");
+
+
+        rooms = await client.GetFromJsonAsync<List<RoomResponse>>("api/Room");
+
+    }
+
+
+    public class RoomResponse
+    {
+        public int Id { get; set; }
+        public string Number { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public decimal PricePerNight { get; set; }
+        public int Capacity { get; set; }
+    }
+
+    private void BookRoom(int roomId)
+    {
+        if(!TokenStore.IsLoggedIn)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        Nav.NavigateTo($"/book/{roomId}");
+    }
+}
