@@ -151,7 +151,7 @@ namespace HotelBookingSystem.API.Controllers
             if (guest == null) return NotFound();
 
             var booking = await _db.Bookings
-                .FirstOrDefaultAsync(b=>b.Id == b.Id&& b.GuestID == guest.Id);
+                .FirstOrDefaultAsync(b=>b.Id == id && b.GuestID == guest.Id);
 
             if(booking == null) return NotFound("Booking Not Found");
             if (booking.Status == "Cancelled") return BadRequest("Booking already  Cancelled");
