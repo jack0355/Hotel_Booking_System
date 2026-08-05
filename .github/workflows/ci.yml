@@ -11,4 +11,6 @@ jobs:
         with:
           dotnet-version: '8.0'
       - run: dotnet build HotelBookinSystem.sln
-      - run: docker build -t hotelbookingsystem -f HotelBookingSystem/Dockerfile .
+      - run: docker build -t ${{ secrets.DOCKER_USERNAME }}/hotelbookingsystem -f HotelBookingSystem/Dockerfile .
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker push ${{ secrets.DOCKER_USERNAME }}/hotelbookingsystem
