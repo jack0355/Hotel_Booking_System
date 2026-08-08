@@ -44,6 +44,40 @@ A full-stack hotel room booking platform built with **ASP.NET Core REST API**, *
 
 ---
 
+## CI/CD Pipeline
+
+Automated build and containerization pipeline using **GitHub Actions**:
+
+- Triggers automatically on every push to `master`
+- Restores and builds the full .NET solution (API, Core, Blazor)
+- Builds a Docker image from the API's Dockerfile
+- Authenticates and pushes the built image to **Docker Hub** using GitHub Actions secrets
+
+```yaml
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0'
+      - run: dotnet build HotelBookinSystem.sln
+      - run: docker build -t ${{ secrets.DOCKER_USERNAME }}/hotelbookingsystem -f HotelBookingSystem/Dockerfile .
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker push ${{ secrets.DOCKER_USERNAME }}/hotelbookingsystem
+```
+
+Credentials are stored securely as **GitHub Actions repository secrets** — never hardcoded in the workflow file.
+
+See the [Actions tab](https://github.com/jack0355/Hotel_Booking_System/actions) for full build history, including real debugging along the way (build path errors, Docker tag formatting, and authentication fixes).
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -55,6 +89,7 @@ A full-stack hotel room booking platform built with **ASP.NET Core REST API**, *
 | Frontend | Blazor Server |
 | UI Library | MudBlazor |
 | Containerization | Docker + Docker Compose |
+| CI/CD | GitHub Actions → Docker Hub |
 | Language | C# |
 
 ---
@@ -63,6 +98,9 @@ A full-stack hotel room booking platform built with **ASP.NET Core REST API**, *
 
 ```
 HotelBookingSystem/
+│
+├── .github/workflows/           # CI/CD pipeline (GitHub Actions)
+│   └── ci.yml
 │
 ├── HotelBookingSystem/          # ASP.NET Core Web API
 │   ├── Controllers/             # Auth, Rooms, Bookings
@@ -92,22 +130,18 @@ HotelBookingSystem/
 - .NET 8 SDK (for local development)
 
 ### Run with Docker
-
 ```bash
 git clone https://github.com/jack0355/Hotel_Booking_System.git
 cd Hotel_Booking_System
 docker-compose up --build
 ```
-
 API starts on `http://localhost:8080` — Swagger available at `http://localhost:8080/swagger`
 
 ### Run Blazor Frontend
-
 ```bash
 cd HotelBookingSystem.Blazor
 dotnet run
 ```
-
 Open `http://localhost:5295`
 
 ---
@@ -118,10 +152,11 @@ Open `http://localhost:5295`
 - All protected endpoints require valid JWT Bearer token
 - Role checks prevent guests from accessing admin endpoints
 - Double-booking prevented at the database query level
+- CI/CD credentials stored as encrypted GitHub Actions secrets, never committed to source
 
 ---
 
 ## Author
 
-**Zain Ramadan** — Junior .NET Backend Developer  
+**Zain Ramadan** — Junior .NET Backend Developer
 [github.com/jack0355](https://github.com/jack0355)
