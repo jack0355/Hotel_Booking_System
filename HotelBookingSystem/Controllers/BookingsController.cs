@@ -167,11 +167,13 @@ namespace HotelBookingSystem.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult>GetAll()
+        public async Task<IActionResult>GetAll(int page = 1 , int pageSize = 10)
         {
             var bookings = await _db.Bookings
                 .Include(b => b.RoomId)
                 .Include(b => b.Guest)
+                .Skip((page - 1 ) * pageSize)
+                .Take(pageSize)
                 .Select(b => new BookingReponse
                 {
                     Id = b.Id,
@@ -182,8 +184,11 @@ namespace HotelBookingSystem.API.Controllers
                     TotalPrice = b.TotalPrice,
                     Status = b.Status
                 }).ToListAsync();
+            var totalCount = await _db.Bookings.CountAsync();
+    
 
-            return Ok(bookings);
+            return Ok(new { TotalCount = totalCount, Page = page , PageSize = pageSize , Data = bookings});
+
         }
 
 
