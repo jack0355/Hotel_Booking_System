@@ -1,0 +1,207 @@
+﻿@page "/admin/rooms"
+@attribute [Authorize(Roles ="Admin")]
+@rendermode InteractiveServer
+@inject IHttpClientFactory httpClientFactory
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Admin - Manage Rooms</PageTitle>
+
+<MudText Typo="Typo.h4"GutterBottom="true"Color="Color.Primary">
+    🏨 Manage Rooms
+</MudText>
+
+<MudButton Variant="Variant.Filled"
+Color="Color.Success"
+StartIcon="Icons.Material.Add"
+OnClick="OpenAddDialog"
+Class="mb-4">
+Add New Room 
+</MudButton>
+
+@if(rooms == null)
+{
+    <MudProgressCircular Indeterminate="true"/>
+}
+else if(!rooms.Any())
+{
+    <MudAlert Severity="Severity.Info">No rooms available
+        Click "Add New Room" to Create one. 
+    </MudAlert>
+}
+else
+{
+        
+    <MudTable Items="@rooms" Hover="true" Elevation="2">
+        <HeaderContent>
+            <MudTh>Room #</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh>Capacity</MudTh>
+            <MudTh>Price / Night</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Number</MudTd>
+            <MudTd>
+                <MudChip T="string" Color="Color.Secondary" Size="Size.Small">
+                    @context.Type
+                </MudChip>
+            </MudTd>
+            <MudTd>@context.Capacity</MudTd>
+            <MudTd>$@context.PricePerNight</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           Size="Size.Small"
+                           OnClick="() => OpenEditDialog(context)">
+                    Edit
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           Size="Size.Small"
+                           OnClick="() => DeleteRoom(context.Id, context.Number)">
+                    Delete
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+
+   
+}
+
+
+
+
+
+
+@code 
+{
+    private List<RoomResponse>? rooms;
+
+
+    public class RoomResponse
+    {
+        public int Id { get; set; }
+        public string Number { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public int Capacity { get; set; }
+        public decimal PricePerNight { get; set; }
+    }
+
+
+    public class RoomRequest
+    {
+        public string Number { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public int Capacity { get; set; }
+        public decimal PricePerNight { get; set; }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!TokenStore.IsLoggedIn)
+        {
+
+            Snackbar.Add("Please Log in First", Severity.Warning);
+
+            NavigationManager.NavigateTo("/login");
+            return;
+
+        }
+        await LoadRooms();
+    }
+
+
+    private async Task LoadRooms()
+    {
+        try
+        {
+            var client = httpClientFactory.CreateClient("HotelAPI");
+
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", TokenStore.AccessToken);
+
+            rooms = await client.GetFromJsonAsync<List<RoomResponse>>("api/Room");
+
+
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error Loading rooms : {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["IsEdit"] =  false,
+            ["Room"] = null
+        };
+
+        var dialog = await DialogService.ShowAsync<RoomDialog>("Add New Room", parameters);
+        var result = await dialog.Result;
+
+
+        if(result != null && !result.Canceled)
+        {
+            await LoadRooms();
+            Snackbar.Add("Room Added Successfully!", Severity.Success);
+        }
+    }
+
+    private async Task OpenEditDialog(RoomResponse room)
+    {
+        var parameters = new DialogParameters
+            {
+                ["IsEdit"] = true,
+                ["Room"] = room
+            };
+
+        var dialog = await DialogService.ShowAsync<RoomDialog>
+        ("Edit Room", parameters);
+        var result = await dialog.Result;
+
+        if(result != null && !result.Canceled)
+        {
+            await LoadRooms();
+            Snackbar.Add("Room Updated Successfully", Severity.Success);
+        }
+    }
+
+    private async Task DeleteRoom(int roomId , string roomNumber)
+    {
+        bool? Confirm = await DialogService.ShowMessageBox("Delete Room", $"Are you Sure you want to delete Room #{roomNumber} ? ",
+        "Yes , Delete it !", "No Keep it");
+
+        if(Confirm == true)
+            try
+            {
+                var client = httpClientFactory.CreateClient("HotelAPI");
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue
+                ("Bearer" , TokenStore.AccessToken);
+
+                var response = await client.DeleteAsync($"api/room/{roomId}");
+
+                if(response.IsSuccessStatusCode)
+                {
+                    await LoadRooms();
+                    Snackbar.Add($"Room #{roomNumber} deleted Successfully ", Severity.Success);
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Failed To Delete : {error}", Severity.Error);
+                }
+            }
+            catch(Exception ex)
+            {
+                Snackbar.Add($"Network Error : {ex.Message}", Severity.Error);
+            }
+    }
+   
+}

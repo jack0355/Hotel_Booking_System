@@ -4,7 +4,7 @@
 
 <MudThemeProvider />
 <MudDialogProvider />
-<MudPopoverProvider/>
+<MudPopoverProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
@@ -22,15 +22,6 @@
         }
     </MudAppBar>
 
-    @code {
-        private void Logout()
-        {
-            TokenStore.AccessToken = null;  // clear token
-            TokenStore.Role = null;
-            Nav.NavigateTo("/login");       // redirect to login page
-        }
-    }
-
     <MudDrawer Open="true" Elevation="2" Variant="DrawerVariant.Persistent">
         <MudNavMenu>
             <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
@@ -42,6 +33,18 @@
             <MudNavLink Href="/my-bookings" Icon="@Icons.Material.Filled.BookOnline">
                 My Bookings
             </MudNavLink>
+
+           
+            @if (TokenStore.IsLoggedIn && TokenStore.Role == "Admin")
+            {
+                <MudNavLink Href="/admin/rooms" Icon="@Icons.Material.Filled.Settings">
+                    Manage Rooms
+                </MudNavLink>
+                <MudNavLink Href="/admin/all-bookings" Icon="@Icons.Material.Filled.Book">
+                    All Bookings
+                </MudNavLink>
+            }
+            
         </MudNavMenu>
     </MudDrawer>
 
@@ -51,3 +54,12 @@
         </MudContainer>
     </MudMainContent>
 </MudLayout>
+
+@code {
+    private void Logout()
+    {
+        TokenStore.AccessToken = null;
+        TokenStore.Role = null;
+        Nav.NavigateTo("/login");
+    }
+}

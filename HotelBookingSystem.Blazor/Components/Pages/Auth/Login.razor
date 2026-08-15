@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 @inject IHttpClientFactory HttpClientFactory
 @inject NavigationManager Nav
-@* NavigationManager — lets us redirect to other pages programmatically *@
+
 
 <PageTitle>Login</PageTitle>
 
@@ -15,7 +15,9 @@
             {
                 <MudAlert Severity="Severity.Error" Class="mb-4">@errorMessage</MudAlert>
             }
-
+            <MudText class="mt-4">
+                Don't Have an account ? <MudLink Href="/signup">Sign up</MudLink>
+            </MudText>
             <MudTextField @bind-Value="username"
                           Label="Username"
                           Variant="Variant.Outlined"
@@ -33,6 +35,7 @@
                        OnClick="HandleLogin">
                 Login
             </MudButton>
+
         </MudCardContent>
     </MudCard>
 </MudContainer>

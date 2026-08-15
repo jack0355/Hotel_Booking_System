@@ -130,6 +130,20 @@ namespace HotelBookingSystem.API.Controllers
 
             return Ok(availableRooms);
         }
+
+
+        
+
+        [HttpGet("rooms/{roomId}/rating")]
+        public async Task<IActionResult>GetRoomRating(int roomId)
+        {
+            var avg = await _db.Reviews
+                .Where(r => r.Booking.RoomId == roomId)
+                .AverageAsync(r => (double?) r.Rating) ?? 0;
+            return Ok(new { roomId = roomId, AverageRating = avg });
+        }
+
+        
     }
         
     

@@ -1,0 +1,89 @@
+﻿@page "/review/{BookingId:int}"
+@rendermode InteractiveServer
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Nav
+
+
+<PageTitle>Leave a Review</PageTitle>
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h4" Class="mb-4">Rate Your Stays</MudText>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@errorMessage</MudAlert>
+            }
+
+            @if(!string.IsNullOrEmpty(successMessage))
+            {
+                <MudAlert Severity="Severity.Success" Class="mb-3">@successMessage</MudAlert>
+            }
+
+            <MudText Class="mb-2">Rating</MudText>
+            <MudRating @bind-SelectedValue="rating" Class="mb-4" />
+
+
+            <MudTextField @bind-Value="comment"
+            Label ="Comment"
+            Lines = "3"
+            Variant="Variant.Outlined"
+            Class="mb-4" />
+
+            <MudButton Variant="Variant.Filled"
+            Color = "Color.Primary"
+            FullWidth="true"
+            Disabled="isLoading"
+            OnClick="SubmitReview">
+            @(isLoading? "Submitting..." : "Submit Review")
+        </MudButton>
+
+
+
+
+
+
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+
+
+@code 
+{
+    [Parameter]public int BookingId{ get; set; }
+    private int rating = 5;
+    private string comment = "";
+    private bool isLoading = false;
+    private string errorMessage = "";
+    private string successMessage = "";
+
+    private async Task SubmitReview()
+    {
+        isLoading = true;
+        errorMessage = "";
+        var client = HttpClientFactory.CreateClient("HotelAPI");
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer", TokenStore.AccessToken);
+
+        var response = await client.PostAsJsonAsync($"api/Bookings/{BookingId}/review", new
+        {
+            rating = rating,
+            comment = comment
+        });
+
+        Console.WriteLine($"Review response : {response.StatusCode}");
+        if(response.IsSuccessStatusCode)
+        {
+            successMessage = "Thanks for Your Reivew ! ";
+            await Task.Delay(1500);
+            Nav.NavigateTo("/my-bookings");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            errorMessage = error;
+        }
+        isLoading = false;
+    }
+}

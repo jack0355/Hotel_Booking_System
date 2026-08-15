@@ -26,7 +26,7 @@ else
 {
    
     <MudTable Items="bookings" Hover="true">
-        @* MudTable = modern data table with hover effect *@
+     
         <HeaderContent>
             <MudTh>Room</MudTh>
             <MudTh>Type</MudTh>
@@ -45,15 +45,22 @@ else
             <MudTd>
                 <MudText Color="@GetStatusColor(context.Status)">@context.Status</MudText>
             </MudTd>
-            <MudTd>
-                @if (context.Status == "Pending" || context.Status == "Confirmed")
-                {
-                    <MudButton Size="Size.Small"
-                               Color="Color.Error"
-                               OnClick="() => CancelBooking(context.Id)">
-                        Cancel
-                    </MudButton>
-                }
+       
+             <MudTd>
+                    @if (context.Status == "Pending" || context.Status == "Confirmed")
+                    {
+                        <MudButton Size="Size.Small" Color="Color.Error" OnClick="() => CancelBooking(context.Id)">
+                            Cancel
+                        </MudButton>
+                    }
+
+                <MudButton Size="Size.Small"
+                           Color="Color.Primary"
+                           Disabled="@(!(context.Status == "Confirmed" && context.CheckOut < DateTime.Today))"
+                           OnClick='() => Nav.NavigateTo($"/review/{context.Id}")'>
+                    Leave Review
+                </MudButton>
+                
             </MudTd>
         </RowTemplate>
     </MudTable>

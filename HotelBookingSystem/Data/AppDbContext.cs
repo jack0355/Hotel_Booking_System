@@ -10,7 +10,7 @@ namespace HotelBookingSystem.API.Data
         public DbSet<Guest> Guests {  get; set; }
         public DbSet<Booking> Bookings {  get; set; }
         public DbSet<User>Users { get; set; }
-
+        public DbSet<Review> Reviews { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Room>().Property(r => r.PricePerNight)

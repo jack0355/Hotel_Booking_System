@@ -1,6 +1,8 @@
 ﻿using HotelBookingSystem.API.Data;
 using HotelBookingSystem.API.DTOs.Bookings;
+using HotelBookingSystem.API.DTOs.Rooms;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Contracts;
@@ -223,6 +225,43 @@ namespace HotelBookingSystem.API.Controllers
             booking.Status = "Cancelled";
             await _db.SaveChangesAsync();
             return Ok("Booking Cancelled By Admin");
+        }
+
+        [HttpPost("/api/bookings/{bookingId}/review")]
+        [Authorize]
+        public async Task<IActionResult> AddReview(int bookingId, [FromBody] ReviewRequest request)
+        {
+            var booking = await _db.Bookings.FindAsync(bookingId);
+            if (booking == null || booking.Status != "Confirmed")
+                return BadRequest("Can Only Review Completed Stays");
+
+            var review = new Review { BookingId = bookingId, Rating = request.Rating };
+            _db.Reviews.Add(review);
+            await _db.SaveChangesAsync();
+            return Ok("Review Added");
+        }
+
+        [HttpGet("admin/all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult>GetAllBookingsForAdmin()
+        {
+            var bookings = await _db.Bookings.Include(b => b.Room)
+                .Include(b => b.Guest)
+                .Select(b => new
+                {
+                    b.Id,
+                    RoomNumber = b.Room.Number,
+                    RoomType = b.Room.Type,
+                    UserName = b.Guest.FullName,
+                    UserEmail = b.Guest.Email,
+                    b.CheckIn,
+                    b.CheckOut,
+                    b.TotalPrice,
+                    b.Status
+                })
+                .ToListAsync();
+
+            return Ok(bookings);
         }
     }
 }
