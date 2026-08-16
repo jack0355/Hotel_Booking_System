@@ -30,10 +30,14 @@
             <MudNavLink Href="/rooms" Icon="@Icons.Material.Filled.Hotel">
                 Rooms
             </MudNavLink>
-            <MudNavLink Href="/my-bookings" Icon="@Icons.Material.Filled.BookOnline">
-                My Bookings
-            </MudNavLink>
+            @if(TokenStore.Role != "Admin")
+            {
+                <MudNavLink Href="/my-bookings" Icon="@Icons.Material.Filled.BookOnline">
+                    My Bookings
+                </MudNavLink>
 
+            }
+          
            
             @if (TokenStore.IsLoggedIn && TokenStore.Role == "Admin")
             {

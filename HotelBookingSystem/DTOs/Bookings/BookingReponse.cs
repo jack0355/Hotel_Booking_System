@@ -9,5 +9,8 @@
         public DateTime CheckOut { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; }
+
+        public DateTime? CheckedInAt {get; set; }
+        public DateTime? CheckedOutAt {get;set; }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using System.Diagnostics.Contracts;
 using System.Security.Claims;
 
@@ -166,36 +167,6 @@ namespace HotelBookingSystem.API.Controllers
 
 
 
-
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult>GetAll(int page = 1 , int pageSize = 10)
-        {
-            var bookings = await _db.Bookings
-                .Include(b => b.RoomId)
-                .Include(b => b.Guest)
-                .Skip((page - 1 ) * pageSize)
-                .Take(pageSize)
-                .Select(b => new BookingReponse
-                {
-                    Id = b.Id,
-                    RoomNumber = b.Room.Number,
-                    RoomType = b.Room.Type,
-                    CheckIn = b.CheckIn,
-                    CheckOut = b.CheckOut,
-                    TotalPrice = b.TotalPrice,
-                    Status = b.Status
-                }).ToListAsync();
-            var totalCount = await _db.Bookings.CountAsync();
-    
-
-            return Ok(new { TotalCount = totalCount, Page = page , PageSize = pageSize , Data = bookings});
-
-        }
-
-
-
-
         [HttpPut("{id}/confirm")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult>Confirm(int id)
@@ -227,6 +198,11 @@ namespace HotelBookingSystem.API.Controllers
             return Ok("Booking Cancelled By Admin");
         }
 
+
+
+        //---------------------------------------
+        //GET THE GUEST REVIEW : ADMIN 
+        //----------------------------------------
         [HttpPost("/api/bookings/{bookingId}/review")]
         [Authorize]
         public async Task<IActionResult> AddReview(int bookingId, [FromBody] ReviewRequest request)
@@ -241,6 +217,12 @@ namespace HotelBookingSystem.API.Controllers
             return Ok("Review Added");
         }
 
+
+
+
+        //---------------------------------------
+        //GET ALL THE BOOKING  : ADMIN
+        //----------------------------------------
         [HttpGet("admin/all")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult>GetAllBookingsForAdmin()
@@ -254,6 +236,8 @@ namespace HotelBookingSystem.API.Controllers
                     RoomType = b.Room.Type,
                     UserName = b.Guest.FullName,
                     UserEmail = b.Guest.Email,
+                    CheckedInAt = b.CheckedInAt , 
+                    CheckedOutAt = b.CheckedOutAt ,
                     b.CheckIn,
                     b.CheckOut,
                     b.TotalPrice,
@@ -262,6 +246,40 @@ namespace HotelBookingSystem.API.Controllers
                 .ToListAsync();
 
             return Ok(bookings);
+        }
+
+
+
+        //---------------------------------------
+        //GUEST CHECK OUT AND CHECK IN : ADMIN
+        //----------------------------------------
+        [HttpPut("{id}/checkin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult>CheckIn(int id )
+        {
+            var booking = await _db.Bookings.FindAsync(id);
+            if (booking == null) return NotFound("Booking Not found .");
+            if (booking.Status != "Confirmed") return BadRequest("Only Confirmed Bookings Can check in");
+            if (booking.CheckedInAt != null) return BadRequest("Guest already checked  in ");
+
+            booking.CheckedInAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return Ok("Guest checked in Successfully ");
+            
+        }
+
+        [HttpPut("{id}/checkout")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult>CheckOut(int id)
+        {
+            var booking =  await _db.Bookings.FindAsync(id);
+            if (booking == null) return NotFound("The Bookings not found !");
+            if (booking.CheckedInAt == null) return BadRequest("Guest hasn't checked in yet");
+            if (booking.CheckedOutAt != null) return BadRequest("Guest already checked out ");
+
+            booking.CheckedOutAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return Ok("Guest Checked out Succesfully");
         }
     }
 }
