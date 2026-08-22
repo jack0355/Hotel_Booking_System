@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelBookingSystem.Blazor", "..\HotelBookingSystem.Blazor\HotelBookingSystem.Blazor.csproj", "{70ABAE9D-A932-43FA-B6B5-B5B24C785F7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelBookingSystem.Test", "HotelBookingSystem.Test.csproj", "{ADA6DF2B-9628-4BAC-8A00-F847423C9B51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelBookingSystem.Tests", "HotelBookingSystem.Tests\HotelBookingSystem.Tests.csproj", "{ADA6DF2B-9628-4BAC-8A00-F847423C9B51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
