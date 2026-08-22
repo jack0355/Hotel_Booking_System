@@ -1,6 +1,7 @@
 ﻿using HotelBookingSystem.API.Data;
 using HotelBookingSystem.API.DTOs.Bookings;
 using HotelBookingSystem.API.DTOs.Rooms;
+using HotelBookingSystem.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,11 @@ namespace HotelBookingSystem.API.Controllers
     public class BookingsController : ControllerBase
     {
         private readonly AppDbContext _db;
-
-        public BookingsController(AppDbContext db)
+        private readonly BookingService _bookingService;
+        public BookingsController(AppDbContext db , BookingService bookingService)
         {
             _db = db;
+            _bookingService = bookingService;
         }
 
 
@@ -53,9 +55,8 @@ namespace HotelBookingSystem.API.Controllers
             if (IsBooked)
                 return Conflict("Room is already Booked for the selected Dates");
 
-            var nights = (request.CheckOut - request.CheckIn).Days;
-            var totalPrice = nights * room.PricePerNight;
-
+            
+            var totalPrice = _bookingService.CalculateTotalPrice(request.CheckIn, request.CheckOut, room.PricePerNight);
             var user = await _db.Users.FindAsync(userId);
             var guest = await _db.Guests.FirstOrDefaultAsync(g => g.Email == user.username);
 

@@ -41,9 +41,18 @@ namespace HotelBookingSystem.API.Controllers
                 passwordHash = HashPassword(request.Password),
                 Role = "Guest"
             };
+            user.SetPassword(request.Password);
 
+
+            
             _db.Users.Add(user);
+
+
+
+
             await _db.SaveChangesAsync();
+
+
             return Ok("Registered Successfully ");
         }
 

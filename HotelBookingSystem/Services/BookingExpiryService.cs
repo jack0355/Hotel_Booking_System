@@ -8,7 +8,7 @@ namespace HotelBookingSystem.API.Services
     {
         private readonly IServiceScopeFactory _scopeFactory;
 
-
+        
         public BookingExpiryService(IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;

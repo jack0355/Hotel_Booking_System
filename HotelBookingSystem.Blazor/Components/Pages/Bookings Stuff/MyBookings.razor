@@ -47,17 +47,10 @@ else
             </MudTd>
        
              <MudTd>
-                    @if (context.Status == "Pending" || context.Status == "Confirmed")
-                    {
-                        <MudButton Size="Size.Small" Color="Color.Error" OnClick="() => CancelBooking(context.Id)">
-                            Cancel
-                        </MudButton>
-                    }
-
                 <MudButton Size="Size.Small"
                            Color="Color.Primary"
                            Disabled="@(!(context.Status == "Confirmed" && context.CheckOut < DateTime.Today))"
-                           OnClick='() => Nav.NavigateTo($"/review/{context.Id}")'>
+                           OnClick='()=> Nav.NavigateTo($"/review/{context.Id}")'>
                     Leave Review
                 </MudButton>
                 

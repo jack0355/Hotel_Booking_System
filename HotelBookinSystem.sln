@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelBookingSystem.Blazor", "HotelBookingSystem.Blazor\HotelBookingSystem.Blazor.csproj", "{70ABAE9D-A932-43FA-B6B5-B5B24C785F7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelBookingSystem.Tests", "HotelBookingSystem.Tests\HotelBookingSystem.Tests.csproj", "{95908190-9E2C-4C9B-858F-6CCAD5F5482A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,18 +61,6 @@ Global
 		{70ABAE9D-A932-43FA-B6B5-B5B24C785F7A}.Release|x64.Build.0 = Release|Any CPU
 		{70ABAE9D-A932-43FA-B6B5-B5B24C785F7A}.Release|x86.ActiveCfg = Release|Any CPU
 		{70ABAE9D-A932-43FA-B6B5-B5B24C785F7A}.Release|x86.Build.0 = Release|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Debug|x64.Build.0 = Debug|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Debug|x86.Build.0 = Debug|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Release|x64.ActiveCfg = Release|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Release|x64.Build.0 = Release|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Release|x86.ActiveCfg = Release|Any CPU
-		{95908190-9E2C-4C9B-858F-6CCAD5F5482A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

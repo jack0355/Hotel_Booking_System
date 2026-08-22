@@ -25,9 +25,9 @@
         </MudItem>
 
         <MudItem xs="12" sm="6" md="3">
-            <MudSelect T="string" Label="Room Type" @bind-Value="selectedRoomType"
+            <MudSelect T="string" Label="Room Type" @bind-Value="selectedRoomType" @bind-Value:after="ApplyFilters"
                        Variant="Variant.Outlined"
-                       OnChange="OnFilterChanged">
+                                                   >
                 <MudSelectItem Value="@("All")">All Types</MudSelectItem>
                 <MudSelectItem Value="@("Single")">Single</MudSelectItem>
                 <MudSelectItem Value="@("Double")">Double</MudSelectItem>
