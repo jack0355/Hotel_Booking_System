@@ -38,8 +38,8 @@ namespace HotelBookingSystem.API.Controllers
             var user = new User
             {
                 username = request.Username,
-                passwordHash = HashPassword(request.Password),
                 Role = "Guest"
+                
             };
             user.SetPassword(request.Password);
 
@@ -61,8 +61,12 @@ namespace HotelBookingSystem.API.Controllers
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.username == request.Username);
 
-            if (user == null || user.passwordHash != HashPassword(request.Password))
+            if(user == null || !user.VerifyPassword(request.Password))
                 return Unauthorized("Invalid Credentials");
+
+
+            _db.Entry(user).Reload();
+
 
             var accessToken = GenerateAccessToken(user);
             var refreshToken = GenerateRefreshToken();
@@ -109,21 +113,16 @@ namespace HotelBookingSystem.API.Controllers
         public async Task<IActionResult> Logout([FromBody]string Refreshtoken)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u=> u.username == Refreshtoken);
-            if (user == null) return BadRequest();
+            if (user == null) return BadRequest("Invalid Refresh Token . ");
 
             user.RefreshToken = null;
             user.RefreshTokenExpiry = null;
             await _db.SaveChangesAsync();
-            return Ok("Logged Out");
+            return Ok("Logged Out Successfully ");
         }
 
 
-        private string HashPassword(string password)
-        {
-            using var sha = SHA256.Create();
-            var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
-        }
+      
 
         private string GenerateAccessToken(User user)
         {

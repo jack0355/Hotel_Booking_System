@@ -8,7 +8,8 @@
     //The Creating and the DateTime 
     public DateTime CreatedAt { get; set; }
     public Booking Booking { get; set; } = null!;
-    //Rating and COmment Stuff 
+
+    //Rating and Comment Stuff 
     public int Rating { get; set; }
     public string Comment { get; set; } = string.Empty;
     

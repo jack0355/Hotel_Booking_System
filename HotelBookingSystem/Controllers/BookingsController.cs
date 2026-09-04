@@ -1,4 +1,5 @@
-﻿using HotelBookingSystem.API.Data;
+﻿using Azure.Core.Extensions;
+using HotelBookingSystem.API.Data;
 using HotelBookingSystem.API.DTOs.Bookings;
 using HotelBookingSystem.API.DTOs.Rooms;
 using HotelBookingSystem.API.Services;
@@ -34,8 +35,11 @@ namespace HotelBookingSystem.API.Controllers
 
             var userId = int.Parse(userIdClaim);
 
+            var checkIn = DateTime.SpecifyKind(request.CheckIn , DateTimeKind.Utc);
+            var checkOut = DateTime.SpecifyKind(request.CheckOut, DateTimeKind.Utc);
 
-            if (request.CheckOut <= request.CheckIn)
+
+            if (checkOut <=  checkIn)
                 return BadRequest("Check-out Must be after Check-in");
 
             var room = await _db.Rooms.FindAsync(request.RoomId);
@@ -49,14 +53,14 @@ namespace HotelBookingSystem.API.Controllers
             var IsBooked = await _db.Bookings.AnyAsync(b=>
             b.RoomId == request.RoomId &&
             b.Status != "Cancelled" && 
-            b.CheckIn < request.CheckOut && 
-            b.CheckOut > request.CheckIn);
+            b.CheckIn < checkOut && 
+            b.CheckOut > checkIn);
 
             if (IsBooked)
                 return Conflict("Room is already Booked for the selected Dates");
 
             
-            var totalPrice = _bookingService.CalculateTotalPrice(request.CheckIn, request.CheckOut, room.PricePerNight);
+            var totalPrice = _bookingService.CalculateTotalPrice(checkIn , checkOut, room.PricePerNight);
             var user = await _db.Users.FindAsync(userId);
             var guest = await _db.Guests.FirstOrDefaultAsync(g => g.Email == user.username);
 
@@ -78,8 +82,8 @@ namespace HotelBookingSystem.API.Controllers
             {
                 RoomId = request.RoomId,
                 GuestID = guest.Id,
-                CheckIn = request.CheckIn,
-                CheckOut = request.CheckOut,
+                CheckIn = checkIn , 
+                CheckOut = checkOut,
                 TotalPrice = totalPrice,
                 Status = "Pending",
                 CreatedAt = DateTime.UtcNow
@@ -115,7 +119,8 @@ namespace HotelBookingSystem.API.Controllers
 
             var userId = int.Parse(userIdClaim);
 
-        var user = await _db.Users.FindAsync(userId);
+            var user = await _db.Users.FindAsync(userId);
+
             var guest = await _db.Guests.FirstOrDefaultAsync(g => g.Email
              == user.username);
 
@@ -132,7 +137,10 @@ namespace HotelBookingSystem.API.Controllers
                     CheckIn = b.CheckIn,
                     CheckOut = b.CheckOut,
                     TotalPrice = b.TotalPrice,
-                    Status = b.Status
+                    Status = b.Status,
+                    CheckedInAt = b.CheckedInAt,
+                    CheckedOutAt = b.CheckedOutAt,
+                    HasReview = b.Review.Any()
                 }).ToListAsync();
             return Ok(booking);
 
@@ -212,7 +220,7 @@ namespace HotelBookingSystem.API.Controllers
             if (booking == null || booking.Status != "Confirmed")
                 return BadRequest("Can Only Review Completed Stays");
 
-            var review = new Review { BookingId = bookingId, Rating = request.Rating };
+            var review = new Review { BookingId = bookingId, Rating = request.Rating, Comment = request.Comment };
             _db.Reviews.Add(review);
             await _db.SaveChangesAsync();
             return Ok("Review Added");
@@ -221,15 +229,20 @@ namespace HotelBookingSystem.API.Controllers
 
 
 
+
+
         //---------------------------------------
         //GET ALL THE BOOKING  : ADMIN
         //----------------------------------------
+        
         [HttpGet("admin/all")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult>GetAllBookingsForAdmin()
+        public async Task<IActionResult> GetAllBookingsForAdmin()
         {
-            var bookings = await _db.Bookings.Include(b => b.Room)
+            var bookings = await _db.Bookings
+                .Include(b => b.Room)
                 .Include(b => b.Guest)
+                .Include(b => b.Review)  
                 .Select(b => new
                 {
                     b.Id,
@@ -237,12 +250,15 @@ namespace HotelBookingSystem.API.Controllers
                     RoomType = b.Room.Type,
                     UserName = b.Guest.FullName,
                     UserEmail = b.Guest.Email,
-                    CheckedInAt = b.CheckedInAt , 
-                    CheckedOutAt = b.CheckedOutAt ,
                     b.CheckIn,
                     b.CheckOut,
                     b.TotalPrice,
-                    b.Status
+                    b.Status,
+                    b.CheckedInAt,
+                    b.CheckedOutAt,
+                 
+                    ReviewRating = b.Review.FirstOrDefault() != null ? b.Review.FirstOrDefault().Rating : (int?)null,
+                    ReviewText = b.Review.FirstOrDefault() != null ? b.Review.FirstOrDefault().Comment : null
                 })
                 .ToListAsync();
 

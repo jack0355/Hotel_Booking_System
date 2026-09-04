@@ -47,12 +47,20 @@ else
             </MudTd>
        
              <MudTd>
-                <MudButton Size="Size.Small"
-                           Color="Color.Primary"
-                           Disabled="@(!(context.Status == "Confirmed" && context.CheckOut < DateTime.Today))"
-                           OnClick='()=> Nav.NavigateTo($"/review/{context.Id}")'>
-                    Leave Review
-                </MudButton>
+                 @if(context.HasReview)
+                {
+                    <MudText Color="Color.Success">Review Left</MudText>
+                }
+                else
+                {
+                    <MudButton Size="Size.Small"
+                               Color="Color.Primary"
+                               Disabled="@(!(context.Status == "Confirmed" && context.CheckedOutAt != null))"
+                               OnClick='()=> Nav.NavigateTo($"/review/{context.Id}")'>
+                        Leave Review
+                    </MudButton>
+                }
+               
                 
             </MudTd>
         </RowTemplate>
@@ -116,5 +124,8 @@ else
         public DateTime CheckOut { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } = string.Empty;
+
+        public DateTime? CheckedOutAt{ get; set; }
+        public bool HasReview{ get; set; }
     }
 }

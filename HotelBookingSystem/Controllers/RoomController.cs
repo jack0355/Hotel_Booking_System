@@ -47,7 +47,8 @@ namespace HotelBookingSystem.API.Controllers
                 Number = r.Number,
                 Type = r.Type,
                 PricePerNight = r.PricePerNight,
-                Capacity = r.Capacity
+                Capacity = r.Capacity ,
+                
             }).FirstOrDefaultAsync();
 
             if (room == null) return NotFound("Room Not Found");
@@ -137,10 +138,24 @@ namespace HotelBookingSystem.API.Controllers
         [HttpGet("rooms/{roomId}/rating")]
         public async Task<IActionResult>GetRoomRating(int roomId)
         {
-            var avg = await _db.Reviews
-                .Where(r => r.Booking.RoomId == roomId)
-                .AverageAsync(r => (double?) r.Rating) ?? 0;
-            return Ok(new { roomId = roomId, AverageRating = avg });
+            var reviews = await _db.Reviews
+                .Include(r => r.Booking)
+                .ThenInclude(b => b.Room)
+                .Include(r => r.Booking)
+                .ThenInclude(b => b.Guest)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.BookingId,
+                    RoomNumber = r.Booking.Room.Number,
+                    RoomType = r.Booking.Room.Type,
+                    UserName = r.Booking.Guest.FullName,
+                    r.Rating,
+                    
+                    r.CreatedAt
+                }).ToListAsync();
+
+            return Ok(reviews); 
         }
 
         

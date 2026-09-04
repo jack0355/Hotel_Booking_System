@@ -8,14 +8,14 @@
     public DateTime CheckIn {  get; set; }
     public DateTime CheckOut { get; set; }
     public decimal TotalPrice {  get; set; }
-    public string Status {  get; set; }
+    public string? Status {  get; set; }
     public DateTime CreatedAt {  get; set; }
 
 
     public Room Room { get; set; }
-    public Guest Guest { get; set; }
+    public Guest  Guest { get; set; }
 
-    
+    public ICollection<Review> Review { get; set; } = new List<Review>();
 
     public DateTime? CheckedInAt {  get; set; }
     public DateTime? CheckedOutAt { get;set; }

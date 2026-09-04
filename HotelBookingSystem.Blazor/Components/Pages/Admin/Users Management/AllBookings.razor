@@ -86,8 +86,10 @@ else
             <MudTh>Check-out</MudTh>
             <MudTh>Total</MudTh>
             <MudTh>Status</MudTh>
+            <MudTd>Review</MudTd>
             <MudTh>Action</MudTh>
             <MudTh>Stay Info</MudTh>
+          
         </HeaderContent>
 
 
@@ -114,8 +116,23 @@ else
            
 
             </MudTd>
+            <MudTd>
+                @if (context.ReviewRating.HasValue)
+                {
+                    <MudStack Row="true" Spacing="1">
+                        <MudChip T="string" Color="@GetRatingColor(context.ReviewRating.Value)" Size="Size.Small">
+                            @(new string('⭐', context.ReviewRating.Value))
+                        </MudChip>
+                        <MudText Typo="Typo.body2">@context.ReviewText</MudText>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Default">No Review Yet</MudText>
+                }
 
-
+                
+            </MudTd>
 
 
 
@@ -202,6 +219,9 @@ else
         public string Status { get; set; } = string.Empty;
         public DateTime? CheckedInAt{ get; set;}
         public DateTime? CheckedOutAt{ get; set;}
+
+        public string ReviewText { get; set; } = string.Empty;
+        public int? ReviewRating { get; set; }
     }
     //------------------------------
     // ---------- LIFECYCLE ----------
@@ -430,5 +450,13 @@ else
 
             return $"{(int)span.TotalMinutes}m ago";
     }
+
+    private Color GetRatingColor(int rating) => rating switch
+    {
+        5 or 4 => Color.Success,
+        3 => Color.Warning,
+        _ => Color.Error
+    };
+
 
 }

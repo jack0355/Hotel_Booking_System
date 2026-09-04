@@ -6,7 +6,7 @@
 
     public string passwordHash { get; set; } = string.Empty;
 
-    public string Role { get; set; } 
+    public string Role { get; set; } = string.Empty;
 
     public string? RefreshToken {  get; set; }
 

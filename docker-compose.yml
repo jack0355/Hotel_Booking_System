@@ -1,39 +1,51 @@
 version: '3.8'
-
 services:
-
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    # pulls official SQL Server image from Microsoft
     environment:
-      SA_PASSWORD: "YourStrong@Password123"  # SA password for this container
-      ACCEPT_EULA: "Y"                       # required license acceptance
+      SA_PASSWORD: "YourStrong@Password123"
+      ACCEPT_EULA: "Y"
     ports:
-      - "1434:1433"                          # expose on port 1434 locally
+      - "1434:1433"
     volumes:
-      - sqldata:/var/opt/mssql               # persist data between restarts
+      - sqldata:/var/opt/mssql
     healthcheck:
-      # Pings the database locally using sqlcmd. 
-      # -C trusts the certificate, -b forces an error code if it fails.
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'YourStrong@Password123' -C -Q 'SELECT 1' -b"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
 
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Admin123!
+      POSTGRES_DB: hotelbooking
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   api:
     build:
-      context: .                              # build from this folder
+      context: .
       dockerfile: HotelBookingSystem/Dockerfile
     ports:
-      - "8080:8080"                           # API accessible on port 8080
+      - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HotelBookingDB;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True
-      # "sqlserver" here = the service name above, Docker resolves it automatically
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=hotelbooking;Username=postgres;Password=Admin123!
     depends_on:
-      sqlserver:
-        condition: service_healthy            # STRONGER DEPENDENCY: wait until SQL is fully ready
+      postgres:
+        condition: service_healthy
 
 volumes:
-  sqldata:                                    # named volume so data survives container restarts
+  sqldata:
+  pgdata:

@@ -35,25 +35,7 @@
     private RoomRequest roomRequest = new();
     private bool isSubmitting = false;
 
-    // ============================================
-    // DTOs
-    // ============================================
-    public class RoomResponse
-    {
-        public int Id { get; set; }
-        public string Number { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
-        public int Capacity { get; set; }
-        public decimal PricePerNight { get; set; }
-    }
 
-    public class RoomRequest
-    {
-        public string Number { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
-        public int Capacity { get; set; }
-        public decimal PricePerNight { get; set; }
-    }
 
     protected override void OnInitialized()
     {

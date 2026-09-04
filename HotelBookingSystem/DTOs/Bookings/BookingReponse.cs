@@ -12,5 +12,7 @@
 
         public DateTime? CheckedInAt {get; set; }
         public DateTime? CheckedOutAt {get;set; }
+
+        public bool HasReview { get; set; }
     }
 }
