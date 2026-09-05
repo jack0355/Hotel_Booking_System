@@ -16,7 +16,7 @@ builder.Services.AddMudServices();
 
 builder.Services.AddHttpClient("HotelAPI", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/");
+    client.BaseAddress = new Uri("https://hotelbookingsystem-production-1564.up.railway.app/");
 });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
