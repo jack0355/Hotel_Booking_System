@@ -15,7 +15,7 @@
             <MudNumericField Label="Price Per Night" @bind-Value="roomRequest.PricePerNight" Min="1" />
 
 
-            <MudFileUpload T="IBrowserFile" FilesChanged="OnFileSelected" Accept=".jpg, .jpeg , .png">
+            <MudFileUpload T="IBrowserFile" FilesChanged="OnFileSelected" Accept=".jpg, .jpeg , .png , .jfif">
                 <ActivatorContent>
                     <MudButton Variant="Variant.Outlined"
                     Color="Color.Primary"
@@ -67,7 +67,8 @@
                 Number = Room.Number,
                 Type = Room.Type,
                 Capacity = Room.Capacity,
-                PricePerNight = Room.PricePerNight
+                PricePerNight = Room.PricePerNight ,
+                ImageURL =  Room.ImageURL
             };
         }
     }

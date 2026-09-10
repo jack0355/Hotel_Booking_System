@@ -7,6 +7,8 @@
         public string Type { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public decimal PricePerNight { get; set; }
+
+        public string ImageURL { get; set; } = string.Empty;
     }
 
     public class RoomRequest
@@ -15,5 +17,7 @@
         public string Type { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public decimal PricePerNight { get; set; }
+
+        public string ImageURL { get; set; } = string.Empty;
     }
 }

@@ -40,6 +40,7 @@ else
             <MudTh>Type</MudTh>
             <MudTh>Capacity</MudTh>
             <MudTh>Price / Night</MudTh>
+            <MudTh>Image URL</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -51,6 +52,9 @@ else
             </MudTd>
             <MudTd>@context.Capacity</MudTd>
             <MudTd>$@context.PricePerNight</MudTd>
+            <MudTh>
+                @context.ImageURL
+            </MudTh>
             <MudTd>
                 <MudButton Variant="Variant.Outlined"
                            Color="Color.Primary"
