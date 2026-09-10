@@ -33,7 +33,9 @@ namespace HotelBookingSystem.API.Controllers
                 Number = r.Number,
                 Type = r.Type,
                 PricePerNight = r.PricePerNight,
-                Capacity = r.Capacity
+                Capacity = r.Capacity ,
+                ImageURL = r.ImageURL
+
             }).ToListAsync();
 
             return Ok(rooms);
