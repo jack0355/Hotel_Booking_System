@@ -11,6 +11,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+var CloudinaryAccount = new CloudinaryDotNet.Account(
+    builder.Configuration["Cloudinary:CloudName"],
+    builder.Configuration["Cloudinary:ApiKey"],
+    builder.Configuration["Cloudinary:ApiSecret"]
+    );
+
+
+var cloudinary = new CloudinaryDotNet.Cloudinary(CloudinaryAccount);
+builder.Services.AddSingleton(cloudinary);
 // Add services to the container.
 
 builder.Services.AddControllers();

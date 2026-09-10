@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 
 
 namespace HotelBookingSystem.API.Controllers
@@ -14,10 +16,11 @@ namespace HotelBookingSystem.API.Controllers
     {
     
         private readonly AppDbContext _db;
-        
-        public RoomController(AppDbContext db)
+        private readonly Cloudinary _cloudinary;
+        public RoomController(AppDbContext db , Cloudinary cloudinary)
         {
             _db = db;
+            _cloudinary = cloudinary;
         }
 
 
@@ -65,6 +68,7 @@ namespace HotelBookingSystem.API.Controllers
 
             var room = new Room
             {
+               
                 Number = request.Number,
                 Type = request.Type,
                 PricePerNight = request.PricePerNight,
@@ -74,7 +78,14 @@ namespace HotelBookingSystem.API.Controllers
 
             _db.Rooms.Add(room);
             await _db.SaveChangesAsync();
-            return Ok($"Room {room.Number}Created Successfully ");
+            return Ok(new RoomsReponse
+            {
+                Id = room.Id,
+                Number = room.Number,
+                Type = room.Type,
+                PricePerNight = room.PricePerNight,
+                Capacity = room.Capacity
+            });
 
         }
 
@@ -158,7 +169,34 @@ namespace HotelBookingSystem.API.Controllers
             return Ok(reviews); 
         }
 
-        
+        [HttpPost("{id}/image")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UploadImage(int Id,IFormFile File)
+        {
+            var room = await _db.Rooms.FindAsync(Id);
+            if (room == null) return NotFound("Room Not Found");
+
+            if (File == null || File.Length == 0)
+                return BadRequest("No file Uploaded");
+
+            using var stream = File.OpenReadStream();
+            var uploadParms = new ImageUploadParams
+            {
+                File = new FileDescription(File.FileName , stream),
+                Folder = "hotel-rooms"
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParms);
+
+            if (uploadResult.Error != null)
+                return BadRequest(uploadResult.Error.Message);
+
+            room.ImageURL = uploadResult.SecureUrl.ToString();
+            await _db.SaveChangesAsync();
+
+            return Ok(new { imageUrl = room.ImageURL });
+            
+        }
     }
         
     

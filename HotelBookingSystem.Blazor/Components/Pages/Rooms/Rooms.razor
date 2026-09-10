@@ -24,7 +24,11 @@ else
             <MudItem xs="12" sm="6" md="4">
                 
                 <MudCard Elevation="4">
-                    
+                    @if(!string.IsNullOrEmpty(room.ImageURL))
+                    {
+                    <MudCardMedia Image="@room.ImageURL" Height="200"/>    
+                    }
+
                     <MudCardContent Class="pa-4">
                        
                         <MudText Typo="Typo.h4" GutterBottom="true">Room @room.Number</MudText>
@@ -68,6 +72,7 @@ else
         public string Type { get; set; } = string.Empty;
         public decimal PricePerNight { get; set; }
         public int Capacity { get; set; }
+        public string? ImageURL { get; set; }
     }
 
     private void BookRoom(int roomId)

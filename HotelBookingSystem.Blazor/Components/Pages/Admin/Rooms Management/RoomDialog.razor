@@ -13,6 +13,22 @@
             <MudTextField Label="Room Type" @bind-Value="roomRequest.Type" />
             <MudNumericField Label="Capacity" @bind-Value="roomRequest.Capacity" Min="1" Max="10" />
             <MudNumericField Label="Price Per Night" @bind-Value="roomRequest.PricePerNight" Min="1" />
+
+
+            <MudFileUpload T="IBrowserFile" FilesChanged="OnFileSelected" Accept=".jpg, .jpeg , .png">
+                <ActivatorContent>
+                    <MudButton Variant="Variant.Outlined"
+                    Color="Color.Primary"
+                    StartIcon="@Icons.Material.Filled.CloudUpload">
+                    Upload Room Photo
+                    </MudButton>
+                </ActivatorContent>
+
+            </MudFileUpload>
+            @if(selectedFile != null)
+            {
+                <MudText Typo="Typo.caption">Selected : @selectedFile.Name</MudText>
+            }
         </MudStack>
     </DialogContent>
     <DialogActions>
@@ -35,6 +51,11 @@
     private RoomRequest roomRequest = new();
     private bool isSubmitting = false;
 
+    private IBrowserFile? selectedFile;
+    private void OnFileSelected(IBrowserFile file)
+    {
+        selectedFile = file;
+    }
 
 
     protected override void OnInitialized()
@@ -72,25 +93,39 @@
                     "Bearer", TokenStore.AccessToken);
 
             HttpResponseMessage response;
-
+            int roomId;
             if (IsEdit && Room != null)
             {
                 response = await client.PutAsJsonAsync($"api/Room/{Room.Id}", roomRequest);
+                roomId = Room.Id;
             }
             else
             {
                 response = await client.PostAsJsonAsync("api/Room", roomRequest);
+                if (response.IsSuccessStatusCode)
+                {
+                    var created = await response.Content.ReadFromJsonAsync<RoomResponse>();
+                    roomId = created?.Id ?? -1;
+                }
+                else
+                {
+                    roomId = -1;
+                }
             }
 
-            if (response.IsSuccessStatusCode)
-            {
-                MudDialog?.Close(DialogResult.Ok(true));
-            }
-            else
+            if(!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
                 Snackbar.Add($"Error: {error}", Severity.Error);
+                return;
             }
+
+            if( roomId > 0  && selectedFile != null)
+            {
+                await UploadRoomImage(client, roomId);
+            }
+
+            MudDialog?.Close(DialogResult.Ok(true));
         }
         catch (Exception ex)
         {
@@ -99,6 +134,26 @@
         finally
         {
             isSubmitting = false;
+        }
+    }
+
+    private async Task UploadRoomImage(HttpClient client , int roomId)
+    {
+        if (selectedFile == null) return;
+
+        using var content = new MultipartFormDataContent();
+        using var stream = selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+
+        var fileContent = new StreamContent(stream);
+
+        content.Add(fileContent, "File", selectedFile.Name);
+
+        var response = await client.PostAsync($"api/Room/{roomId}/image", content);
+
+        if(!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Snackbar.Add($"Image Upload failed : {error}", Severity.Error);
         }
     }
 }
