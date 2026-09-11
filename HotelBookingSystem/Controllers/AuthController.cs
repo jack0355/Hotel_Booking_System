@@ -88,7 +88,7 @@ namespace HotelBookingSystem.API.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody]string refreshtoken)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u=> u.username ==  refreshtoken);
+            var user = await _db.Users.FirstOrDefaultAsync(u=> u.RefreshToken ==  refreshtoken);
 
             if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                 return Unauthorized("Invalid or expired refresh token");
