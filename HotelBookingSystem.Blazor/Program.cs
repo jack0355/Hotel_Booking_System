@@ -1,4 +1,5 @@
 using HotelBookingSystem.Blazor.Components;
+using HotelBookingSystem.Blazor.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MudBlazor.Services;
 
@@ -23,7 +24,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     .AddCookie();
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
-
+builder.Services.AddScoped<TokenStore>();
 
 var app = builder.Build();
 
