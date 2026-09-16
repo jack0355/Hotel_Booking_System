@@ -89,7 +89,7 @@ namespace HotelBookingSystem.API.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody]string refreshtoken)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+           
             var user = await _db.Users.FirstOrDefaultAsync(u=> u.RefreshToken ==  refreshtoken);
 
             if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
@@ -115,6 +115,7 @@ namespace HotelBookingSystem.API.Controllers
         [Authorize]
         public async Task<IActionResult> Logout([FromBody]string Refreshtoken)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var user = await _db.Users.FirstOrDefaultAsync(u=> u.RefreshToken == Refreshtoken);
             if (user == null) return BadRequest("Invalid Refresh Token . ");
 
