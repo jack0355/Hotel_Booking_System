@@ -62,7 +62,7 @@ namespace HotelBookingSystem.API.Controllers
             
             var totalPrice = _bookingService.CalculateTotalPrice(checkIn , checkOut, room.PricePerNight);
             var user = await _db.Users.FindAsync(userId);
-            var guest = await _db.Guests.FirstOrDefaultAsync(g => g.Email == user.username);
+            var guest = await _db.Guests.FirstOrDefaultAsync(g => g.FullName == user.username);
 
             if(guest == null)
             {
@@ -216,9 +216,20 @@ namespace HotelBookingSystem.API.Controllers
         [Authorize]
         public async Task<IActionResult> AddReview(int bookingId, [FromBody] ReviewRequest request)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null) return Unauthorized();
+            var userId = int.Parse(userIdClaim);
+
+            var user = await _db.Users.FindAsync(userId);
+            var guest = await _db.Guests.FirstOrDefaultAsync(g => g.Email == user.username);
+            if (guest == null) return NotFound("Guest record not found");
+
             var booking = await _db.Bookings.FindAsync(bookingId);
             if (booking == null || booking.Status != "Confirmed")
                 return BadRequest("Can Only Review Completed Stays");
+
+            if (booking.GuestID != guest.Id)
+                return Forbid();   // this booking doesn't belong to the logged-in user
 
             var review = new Review { BookingId = bookingId, Rating = request.Rating, Comment = request.Comment };
             _db.Reviews.Add(review);

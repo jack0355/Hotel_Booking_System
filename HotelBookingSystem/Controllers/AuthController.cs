@@ -115,7 +115,7 @@ namespace HotelBookingSystem.API.Controllers
         [Authorize]
         public async Task<IActionResult> Logout([FromBody]string Refreshtoken)
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var user = await _db.Users.FirstOrDefaultAsync(u=> u.RefreshToken == Refreshtoken);
             if (user == null) return BadRequest("Invalid Refresh Token . ");
 
