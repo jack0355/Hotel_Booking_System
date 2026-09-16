@@ -1,5 +1,6 @@
 ﻿using HotelBookingSystem.API.Data;
 using HotelBookingSystem.API.DTOs.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -88,6 +89,7 @@ namespace HotelBookingSystem.API.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody]string refreshtoken)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var user = await _db.Users.FirstOrDefaultAsync(u=> u.RefreshToken ==  refreshtoken);
 
             if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
@@ -108,8 +110,9 @@ namespace HotelBookingSystem.API.Controllers
                 Role = user.Role
             });
         }
-
+        
         [HttpPost("Logout")]
+        [Authorize]
         public async Task<IActionResult> Logout([FromBody]string Refreshtoken)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u=> u.RefreshToken == Refreshtoken);
