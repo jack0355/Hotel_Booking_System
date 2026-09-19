@@ -212,7 +212,7 @@ namespace HotelBookingSystem.API.Controllers
         //---------------------------------------
         //GET THE GUEST REVIEW : ADMIN 
         //----------------------------------------
-        [HttpPost("/api/bookings/{bookingId}/review")]
+        [HttpPost("{bookingId}/review")]
         [Authorize]
         public async Task<IActionResult> AddReview(int bookingId, [FromBody] ReviewRequest request)
         {
