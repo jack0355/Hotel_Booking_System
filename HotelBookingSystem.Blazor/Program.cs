@@ -14,10 +14,13 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddMudServices();
 
+var apiBaseUrl = builder.Configuration["Api:BaseUrl"]
+    ?? throw new InvalidOperationException("Api:BaseUrl is not configured yet . ");
+
 
 builder.Services.AddHttpClient("HotelAPI", client =>
 {
-    client.BaseAddress = new Uri("https://hotelbookingsystem-production-311c.up.railway.app/");
+    client.BaseAddress = new Uri(" https://hotel-booking-system-3pzc.onrender.com");
 });
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
